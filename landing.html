@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Botificación — IA para el Turismo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #1a2e4a;
+      --teal:   #0d7a75;
+      --teal2:  #0f9b95;
+      --sand:   #f5f0e8;
+      --light:  #f0f7f7;
+      --gray:   #555;
+      --lgray:  #ddd;
+      --white:  #fff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 64px;
+    }
+    .logo { color: var(--white); font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--teal2); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,.75); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta {
+      background: var(--teal); color: var(--white);
+      border: none; padding: .5rem 1.25rem; border-radius: 6px;
+      font-size: .9rem; font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--teal2); }
+
+    /* ── HERO ── */
+    #hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #0f2a45 60%, #0d4a46 100%);
+      padding: 5rem 5% 4rem;
+      text-align: center;
+      color: var(--white);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(13,122,117,.3);
+      border: 1px solid rgba(13,154,149,.4);
+      color: #7de8e3;
+      font-size: .8rem; font-weight: 600;
+      padding: .3rem .9rem; border-radius: 20px;
+      margin-bottom: 1.5rem; letter-spacing: .5px;
+    }
+    #hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      max-width: 780px; margin: 0 auto 1.25rem;
+    }
+    #hero h1 em { color: var(--teal2); font-style: normal; }
+    #hero p {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      max-width: 640px; margin: 0 auto 2rem;
+      color: rgba(255,255,255,.8);
+    }
+    .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--teal); color: var(--white);
+      padding: .85rem 2rem; border-radius: 8px;
+      font-size: 1rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: background .2s, transform .1s;
+    }
+    .btn-primary:hover { background: var(--teal2); transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: rgba(255,255,255,.85);
+      padding: .85rem 2rem; border-radius: 8px;
+      font-size: 1rem; font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,.3);
+      cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--white); color: var(--white); }
+    .trust-badge {
+      margin-top: 2.5rem;
+      color: rgba(255,255,255,.5);
+      font-size: .82rem;
+    }
+    .trust-badge strong { color: rgba(255,255,255,.8); }
+
+    /* ── LOGOS BAR ── */
+    .logos-bar {
+      background: var(--navy);
+      padding: 1.25rem 5%;
+      display: flex; align-items: center; justify-content: center;
+      gap: 2rem; border-top: 1px solid rgba(255,255,255,.08);
+      flex-wrap: wrap;
+    }
+    .logos-bar span {
+      color: rgba(255,255,255,.35);
+      font-size: .8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .logos-bar .channel-pill {
+      background: rgba(255,255,255,.07);
+      color: rgba(255,255,255,.55);
+      padding: .3rem .85rem; border-radius: 20px;
+      font-size: .78rem; font-weight: 600;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 5%; }
+    .section-tag {
+      display: inline-block;
+      background: var(--light);
+      color: var(--teal);
+      font-size: .75rem; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; padding: .3rem .8rem; border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 800; color: var(--navy);
+      line-height: 1.2; margin-bottom: .75rem;
+    }
+    .sub {
+      font-size: 1.05rem; color: #777;
+      max-width: 600px; margin: 0 auto 3rem;
+    }
+    .centered { text-align: center; }
+
+    /* ── PAIN POINTS ── */
+    #problema { background: var(--sand); }
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem; margin-top: 2.5rem;
+    }
+    .pain-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.75rem;
+      border-left: 4px solid var(--teal);
+      box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    }
+    .pain-card .quote {
+      font-size: .95rem; font-weight: 700; color: var(--navy);
+      margin-bottom: .75rem; line-height: 1.4;
+    }
+    .pain-card p { font-size: .9rem; line-height: 1.55; }
+    .pain-close {
+      text-align: center; margin-top: 2.5rem;
+      font-size: 1.05rem; font-weight: 600; color: var(--navy);
+      font-style: italic;
+    }
+
+    /* ── COMO FUNCIONA ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem; margin-top: 3rem; position: relative;
+    }
+    .step {
+      text-align: center; padding: 2rem 1.5rem;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.07);
+    }
+    .step-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--teal); color: var(--white);
+      font-size: 1.3rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+    .step h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .6rem; }
+    .step p { font-size: .9rem; }
+
+    /* ── FEATURES ── */
+    #funcionalidades { background: var(--light); }
+    .features-list { display: flex; flex-direction: column; gap: 4rem; margin-top: 1rem; }
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem; align-items: center;
+    }
+    .feature-row.reverse { direction: rtl; }
+    .feature-row.reverse > * { direction: ltr; }
+    .feature-text h3 {
+      font-size: 1.35rem; font-weight: 800; color: var(--navy);
+      margin-bottom: .5rem;
+    }
+    .feature-text .feat-tag {
+      display: inline-block;
+      background: rgba(13,122,117,.1);
+      color: var(--teal);
+      font-size: .75rem; font-weight: 700;
+      padding: .25rem .7rem; border-radius: 20px;
+      margin-bottom: .75rem; letter-spacing: .5px;
+    }
+    .feature-text p { font-size: .97rem; line-height: 1.65; }
+    .feature-visual {
+      background: var(--navy);
+      border-radius: 16px;
+      padding: 2rem;
+      min-height: 220px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .chat-bubble {
+      background: rgba(255,255,255,.1);
+      border-radius: 12px; padding: .85rem 1rem;
+      color: rgba(255,255,255,.85); font-size: .85rem;
+      margin-bottom: .6rem; max-width: 85%;
+    }
+    .chat-bubble.bot {
+      background: rgba(13,122,117,.5);
+      margin-left: auto; max-width: 85%;
+    }
+    .chat-label {
+      font-size: .7rem; color: rgba(255,255,255,.4);
+      margin-bottom: .3rem;
+    }
+    .metric-row {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    .metric {
+      background: rgba(255,255,255,.08);
+      border-radius: 10px; padding: .75rem 1rem;
+      flex: 1;
+    }
+    .metric .val { font-size: 1.5rem; font-weight: 800; color: var(--teal2); }
+    .metric .lbl { font-size: .72rem; color: rgba(255,255,255,.5); margin-top: .1rem; }
+
+    /* ── PRICING ── */
+    #pricing { background: var(--white); }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem; margin-top: 3rem; align-items: start;
+    }
+    .plan-card {
+      border: 2px solid var(--lgray);
+      border-radius: 16px; padding: 2rem;
+      position: relative; transition: transform .2s, box-shadow .2s;
+    }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1); }
+    .plan-card.featured {
+      border-color: var(--teal); box-shadow: 0 8px 32px rgba(13,122,117,.15);
+    }
+    .plan-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--teal); color: var(--white);
+      font-size: .72rem; font-weight: 700; letter-spacing: .5px;
+      padding: .3rem .9rem; border-radius: 20px;
+    }
+    .plan-name { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .25rem; }
+    .plan-price {
+      font-size: 2.2rem; font-weight: 900; color: var(--navy);
+      margin: .5rem 0 .25rem;
+    }
+    .plan-price span { font-size: 1rem; font-weight: 500; color: #999; }
+    .plan-desc { font-size: .85rem; color: #777; margin-bottom: 1.25rem; line-height: 1.5; }
+    .plan-features { list-style: none; margin-bottom: 1.75rem; }
+    .plan-features li {
+      font-size: .875rem; padding: .35rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex; gap: .5rem; align-items: flex-start;
+    }
+    .plan-features li::before { content: "✓"; color: var(--teal); font-weight: 700; flex-shrink: 0; }
+    .btn-plan {
+      display: block; text-align: center;
+      background: var(--navy); color: var(--white);
+      padding: .75rem; border-radius: 8px;
+      font-weight: 700; font-size: .9rem;
+      text-decoration: none; transition: background .2s;
+    }
+    .btn-plan:hover { background: var(--teal); }
+    .plan-card.featured .btn-plan { background: var(--teal); }
+    .plan-card.featured .btn-plan:hover { background: var(--teal2); }
+
+    /* FAQ */
+    .faq { max-width: 700px; margin: 3.5rem auto 0; }
+    .faq-item {
+      border-bottom: 1px solid var(--lgray);
+      padding: 1.1rem 0;
+    }
+    .faq-q {
+      font-weight: 700; color: var(--navy);
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .faq-q::after { content: "+"; font-size: 1.3rem; color: var(--teal); transition: transform .2s; }
+    .faq-item.open .faq-q::after { content: "−"; }
+    .faq-a {
+      font-size: .9rem; line-height: 1.6; padding-top: .75rem;
+      display: none;
+    }
+    .faq-item.open .faq-a { display: block; }
+
+    /* ── TESTIMONIALS ── */
+    #testimonios { background: var(--light); }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .testimonial {
+      background: var(--white);
+      border-radius: 16px; padding: 1.75rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    }
+    .stars { color: #f5b700; font-size: 1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+    .testimonial blockquote {
+      font-size: .92rem; line-height: 1.65;
+      color: var(--gray); margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .t-author { display: flex; align-items: center; gap: .85rem; }
+    .avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--teal); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .95rem; flex-shrink: 0;
+    }
+    .t-name { font-weight: 700; color: var(--navy); font-size: .9rem; }
+    .t-company { font-size: .8rem; color: #999; }
+
+    /* ── PARA QUIÉN ── */
+    #para-quien { background: var(--white); }
+    .profiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem; margin: 3rem 0 2.5rem;
+    }
+    .profile-card {
+      background: var(--light);
+      border-radius: 12px; padding: 1.5rem;
+    }
+    .profile-icon { font-size: 2rem; margin-bottom: .75rem; }
+    .profile-card h4 { font-size: .95rem; font-weight: 800; color: var(--navy); margin-bottom: .5rem; }
+    .profile-card p { font-size: .875rem; }
+    .fit-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;
+    }
+    .fit-box { border-radius: 12px; padding: 1.5rem; }
+    .fit-box.yes { background: rgba(13,122,117,.07); border: 1.5px solid rgba(13,122,117,.2); }
+    .fit-box.no { background: #fafafa; border: 1.5px solid var(--lgray); }
+    .fit-box h4 { font-size: .9rem; font-weight: 800; margin-bottom: .75rem; }
+    .fit-box.yes h4 { color: var(--teal); }
+    .fit-box.no h4 { color: #999; }
+    .fit-box ul { list-style: none; }
+    .fit-box ul li { font-size: .875rem; padding: .3rem 0; display: flex; gap: .5rem; }
+    .fit-box.yes ul li::before { content: "✓"; color: var(--teal); font-weight: 700; }
+    .fit-box.no ul li::before { content: "✕"; color: #bbb; font-weight: 700; }
+
+    /* ── CTA FINAL ── */
+    #cta-final {
+      background: linear-gradient(135deg, var(--navy) 0%, #0d3a4a 100%);
+      color: var(--white); text-align: center;
+    }
+    #cta-final h2 { color: var(--white); }
+    #cta-final .sub { color: rgba(255,255,255,.65); max-width: 560px; }
+    .cta-micro {
+      margin-top: 1rem;
+      font-size: .82rem; color: rgba(255,255,255,.45);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #111c2b;
+      color: rgba(255,255,255,.4);
+      padding: 3rem 5%;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 2rem; margin-bottom: 2.5rem;
+    }
+    .footer-brand .logo { font-size: 1.2rem; display: block; margin-bottom: .6rem; }
+    .footer-brand p { font-size: .82rem; line-height: 1.55; }
+    .footer-col h5 { color: rgba(255,255,255,.7); font-size: .82rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: .85rem; }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: .4rem; }
+    .footer-col ul li a { color: rgba(255,255,255,.4); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-col ul li a:hover { color: rgba(255,255,255,.8); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;
+      font-size: .8rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .feature-row { grid-template-columns: 1fr; }
+      .feature-row.reverse { direction: ltr; }
+      .fit-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      section { padding: 3.5rem 4%; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Botifi<span>cación</span></div>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Cómo funciona</a></li>
+    <li><a href="#funcionalidades">Funcionalidades</a></li>
+    <li><a href="#pricing">Precios</a></li>
+    <li><a href="#testimonios">Casos de éxito</a></li>
+  </ul>
+  <a href="#cta-final" class="nav-cta">Empezá gratis</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="badge">🇦🇷 Hecho en Argentina para el turismo hispanohablante</div>
+  <h1>Tu negocio turístico atiende, reserva y vende <em>mientras dormís.</em></h1>
+  <p>Botificación es la plataforma de IA diseñada para pequeñas empresas turísticas en Argentina y Latinoamérica. Automatizá la atención al cliente, las reservas y el marketing desde WhatsApp — sin equipo de sistemas ni experiencia técnica.</p>
+  <div class="hero-ctas">
+    <a href="#cta-final" class="btn-primary">Empezá gratis 14 días</a>
+    <a href="#como-funciona" class="btn-ghost">Ver cómo funciona</a>
+  </div>
+  <p class="trust-badge">Más de <strong>[X] empresas turísticas</strong> en Argentina y LATAM ya automatizan su atención — operativo en <strong>72 horas</strong>, soporte en español incluido.</p>
+</section>
+
+<div class="logos-bar">
+  <span>Funciona con</span>
+  <span class="channel-pill">📱 WhatsApp Business</span>
+  <span class="channel-pill">🗓 Google Calendar</span>
+  <span class="channel-pill">💳 MercadoPago</span>
+  <span class="channel-pill">🌐 Tu sitio web</span>
+  <span class="channel-pill">📧 Email</span>
+</div>
+
+<!-- PROBLEMA -->
+<section id="problema">
+  <div class="centered">
+    <div class="section-tag">El problema</div>
+    <h2>¿Te suena familiar alguna de estas situaciones?</h2>
+  </div>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="quote">"Me llegan consultas a las 11 de la noche y no sé si responderlas o dejarlas para mañana."</div>
+      <p>Cuando finalmente contestás, el turista ya reservó en otro lugar. Perdiste una venta sin siquiera saberlo.</p>
+    </div>
+    <div class="pain-card">
+      <div class="quote">"Paso más tiempo respondiendo el mismo WhatsApp que gestionando mi negocio."</div>
+      <p>Precio de la habitación, disponibilidad, qué incluye el paquete, cómo llegar — siempre las mismas preguntas, todos los días, desde distintos números.</p>
+    </div>
+    <div class="pain-card">
+      <div class="quote">"Quiero hacer marketing, pero no tengo tiempo ni presupuesto para contratar a alguien."</div>
+      <p>Mandás un mensaje cuando podés, la página de Instagram se desactualiza sola, y las temporadas altas te agarran sin haber comunicado nada.</p>
+    </div>
+    <div class="pain-card">
+      <div class="quote">"Mis reservas están en el cuaderno, en el Excel y en los mensajes — y a veces se superponen."</div>
+      <p>La falta de un sistema centralizado no solo te genera estrés: te hace perder credibilidad frente al turista que espera una confirmación rápida y profesional.</p>
+    </div>
+  </div>
+  <p class="pain-close">No es falta de ganas ni de capacidad. Es que nadie diseñó herramientas de verdad para negocios turísticos como el tuyo. Hasta ahora.</p>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona">
+  <div class="centered">
+    <div class="section-tag">Proceso</div>
+    <h2>Empezás hoy. Operás en 72 horas. Sin equipo técnico.</h2>
+    <p class="sub">Configurar Botificación no requiere programación, reuniones con consultores ni semanas de implementación.</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Contanos sobre tu negocio</h3>
+      <p>Completás un formulario simple con tus servicios, preguntas frecuentes, tarifas y disponibilidad. Nosotros hacemos el resto.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Conectamos tu WhatsApp</h3>
+      <p>Te guiamos paso a paso para conectar tu número de WhatsApp Business a la plataforma. Sin instalar nada raro, sin cambiar tu número actual.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Tu asistente entra en acción</h3>
+      <p>Desde ese momento, tu bot atiende consultas, gestiona reservas y activa automatizaciones — mientras vos te ocupás de lo que realmente importa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCIONALIDADES -->
+<section id="funcionalidades">
+  <div class="centered">
+    <div class="section-tag">Funcionalidades</div>
+    <h2>Todo lo que tu negocio turístico necesita, en un solo lugar</h2>
+  </div>
+  <div class="features-list">
+
+    <div class="feature-row">
+      <div class="feature-text">
+        <span class="feat-tag">WhatsApp 24/7</span>
+        <h3>Respondé instantáneamente, incluso cuando estás durmiendo.</h3>
+        <p>Tu asistente de IA atiende consultas en tiempo real por WhatsApp — el canal que tus clientes ya usan — sin importar la hora ni el día. Contestá preguntas frecuentes, enviá tarifas, confirmá disponibilidad y derivá al equipo humano solo cuando sea necesario. Tus potenciales clientes obtienen respuesta en segundos, no en horas.</p>
+      </div>
+      <div class="feature-visual">
+        <div>
+          <div class="chat-label">Cliente (22:47)</div>
+          <div class="chat-bubble">Hola! Tienen disponibilidad para el fin de semana del 15? Somos 4 personas</div>
+        </div>
+        <div>
+          <div class="chat-label">Bot Botificación (22:47)</div>
+          <div class="chat-bubble bot">¡Hola! 😊 Sí, tenemos disponibilidad ese fin de semana. Para 4 personas contamos con nuestra cabaña deluxe a $85.000 la noche. ¿Querés que te envíe fotos y reservamos?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row reverse">
+      <div class="feature-text">
+        <span class="feat-tag">Sistema de Reservas</span>
+        <h3>De la consulta a la reserva confirmada, sin fricción.</h3>
+        <p>Tu cliente elige fechas, selecciona el servicio y confirma su reserva directamente desde la conversación de WhatsApp o desde tu página web — sin llamadas, sin idas y vueltas, sin errores de solapamiento. El calendario se actualiza solo y el cliente recibe su confirmación automática.</p>
+      </div>
+      <div class="feature-visual">
+        <div class="metric-row">
+          <div class="metric"><div class="val">3</div><div class="lbl">Reservas hoy</div></div>
+          <div class="metric"><div class="val">87%</div><div class="lbl">Tasa confirmación</div></div>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="chat-bubble" style="font-size:.78rem;margin-bottom:.4rem">📅 <strong>Reserva confirmada</strong><br/>15–16 Nov · Cabaña Deluxe · 4 personas<br/>Confirmación enviada a +54 9 341 xxx xxxx</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-text">
+        <span class="feat-tag">Marketing Automático</span>
+        <h3>Comunicate en el momento justo, sin esfuerzo manual.</h3>
+        <p>Programá secuencias automáticas para recordar reservas, pedir reseñas post-estadía, reactivar clientes que consultaron pero no reservaron, y anunciar promociones de temporada. Estrategia de marketing real, ejecutada por la plataforma.</p>
+      </div>
+      <div class="feature-visual">
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <div class="chat-bubble" style="font-size:.78rem">✅ <strong>Flujo activo:</strong> Post-estadía → Reseña</div>
+          <div class="chat-bubble" style="font-size:.78rem">✅ <strong>Flujo activo:</strong> Recordatorio 24h antes</div>
+          <div class="chat-bubble" style="font-size:.78rem">✅ <strong>Flujo activo:</strong> Reactivación 30 días</div>
+          <div class="chat-bubble" style="font-size:.78rem;opacity:.5">⏸ <strong>Borrador:</strong> Promo temporada alta</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-row reverse">
+      <div class="feature-text">
+        <span class="feat-tag">Panel de Gestión</span>
+        <h3>Todo tu negocio visible en una pantalla.</h3>
+        <p>Desde el panel de Botificación tenés en tiempo real: reservas activas, conversaciones en curso, métricas de respuesta, clientes nuevos y desempeño de tus automatizaciones. Sin abrir cinco pestañas distintas. Un solo lugar para tomar mejores decisiones.</p>
+      </div>
+      <div class="feature-visual">
+        <div class="metric-row">
+          <div class="metric"><div class="val">142</div><div class="lbl">Consultas este mes</div></div>
+          <div class="metric"><div class="val">38</div><div class="lbl">Reservas</div></div>
+          <div class="metric"><div class="val">26%</div><div class="lbl">Conversión</div></div>
+        </div>
+        <div style="margin-top:1rem">
+          <div class="chat-bubble" style="font-size:.78rem">🟢 Bot activo · Tiempo de respuesta: &lt;5 seg · Uptime: 99.8%</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="centered">
+    <div class="section-tag">Precios</div>
+    <h2>Planes claros. Sin costos ocultos. Sin letra chica.</h2>
+    <p class="sub">Todos los planes incluyen onboarding asistido, soporte en español y 14 días de prueba gratuita.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="plan-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$149<span>/mes</span></div>
+      <div class="plan-desc">Para el negocio que da sus primeros pasos en la automatización.</div>
+      <ul class="plan-features">
+        <li>Bot de atención WhatsApp 24/7</li>
+        <li>Respuestas automáticas a consultas frecuentes</li>
+        <li>Hasta 500 conversaciones/mes</li>
+        <li>Gestión de reservas básica</li>
+        <li>Panel de seguimiento</li>
+        <li>1 número de WhatsApp conectado</li>
+        <li>Soporte por email (48h)</li>
+      </ul>
+      <a href="#cta-final" class="btn-plan">Empezar con Starter</a>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">⭐ Más elegido</div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-price">$349<span>/mes</span></div>
+      <div class="plan-desc">Para el negocio que ya creció y necesita escalar sin contratar más personal.</div>
+      <ul class="plan-features">
+        <li>Todo lo del Starter</li>
+        <li>Hasta 2.000 conversaciones/mes</li>
+        <li>Automatizaciones de marketing (5 flujos)</li>
+        <li>Recordatorios automáticos de reserva</li>
+        <li>Solicitud de reseñas post-estadía</li>
+        <li>3 números de WhatsApp conectados</li>
+        <li>Integración con Google Calendar</li>
+        <li>Soporte prioritario por WhatsApp (24h)</li>
+      </ul>
+      <a href="#cta-final" class="btn-plan">Empezar con Growth</a>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$699<span>/mes</span></div>
+      <div class="plan-desc">Para la operación que necesita control total y escala sin límites.</div>
+      <ul class="plan-features">
+        <li>Todo lo del Growth</li>
+        <li>Hasta 7.000 conversaciones/mes</li>
+        <li>Flujos de automatización ilimitados</li>
+        <li>CRM integrado de clientes turísticos</li>
+        <li>Reportes avanzados y exportación de datos</li>
+        <li>Números de WhatsApp ilimitados</li>
+        <li>Onboarding con consultor dedicado</li>
+        <li>Soporte 24/7 por WhatsApp y teléfono</li>
+      </ul>
+      <a href="#cta-final" class="btn-plan">Empezar con Pro</a>
+    </div>
+  </div>
+
+  <div class="faq">
+    <div class="faq-item open">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Hay contrato de permanencia?</div>
+      <div class="faq-a">No. Todos los planes son mes a mes y podés cancelar cuando quieras sin penalidades. Creemos que te quedás si el producto funciona, no por letra chica.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Los 14 días de prueba son realmente gratis?</div>
+      <div class="faq-a">Sí, sin cargo. No te pedimos tarjeta de crédito para empezar. Al final del período de prueba, elegís el plan que mejor se adapta a tu negocio — o no continuás, sin drama.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Los precios están en dólares? ¿Puedo pagar en pesos?</div>
+      <div class="faq-a">Los precios están publicados en USD. Aceptamos pago en pesos argentinos al tipo de cambio oficial y también mediante tarjeta internacional. Escribinos para consultar opciones de facturación local.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿Qué pasa si en temporada alta necesito más capacidad?</div>
+      <div class="faq-a">Los planes están diseñados para absorber picos de demanda sin costo extra. Si tu operación crece y necesitás funcionalidades del plan superior, podés hacer upgrade en cualquier momento — el cambio se aplica de forma inmediata.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.parentElement.classList.toggle('open')">¿El setup tiene costo adicional?</div>
+      <div class="faq-a">No. El onboarding asistido está incluido en todos los planes. En el plan Pro además tenés un consultor dedicado que trabaja con vos durante la configuración inicial.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonios">
+  <div class="centered">
+    <div class="section-tag">Casos de éxito</div>
+    <h2>Lo que dicen los que ya automatizaron su negocio</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Tenía miedo de que fuera demasiado técnico para mí, pero en dos días ya estaba funcionando. Ahora los turistas me escriben a las 2 de la mañana y reciben respuesta inmediata. Yo descanso tranquilo y ellos no se van a buscar otra opción."</blockquote>
+      <div class="t-author">
+        <div class="avatar">RF</div>
+        <div>
+          <div class="t-name">Rodrigo Ferreyra</div>
+          <div class="t-company">Hostal El Chalten · Bariloche, Río Negro</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>"En plena temporada de rafting recibimos más de 80 consultas por semana y antes se nos escapaban clientes por no poder responder rápido. Desde que usamos Botificación, las reservas confirmadas aumentaron y el equipo se concentra en la experiencia en el río, no en el celular."</blockquote>
+      <div class="t-author">
+        <div class="avatar">LM</div>
+        <div>
+          <div class="t-name">Luciana Morales</div>
+          <div class="t-company">Patagonia Activa Rafting & Trekking · Mendoza</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="stars">★★★★★</div>
+      <blockquote>"Somos una agencia chica en Palermo y competimos con agencias grandes que tienen equipos de ventas. Botificación nos niveló la cancha — nuestros clientes reciben atención inmediata y profesional a toda hora. Valió cada peso."</blockquote>
+      <div class="t-author">
+        <div class="avatar">MS</div>
+        <div>
+          <div class="t-name">Martín Salcedo</div>
+          <div class="t-company">Viajes Pampero · Buenos Aires</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section id="para-quien">
+  <div class="centered">
+    <div class="section-tag">¿Es para mí?</div>
+    <h2>Diseñado para negocios turísticos como el tuyo</h2>
+    <p class="sub">No somos un software genérico adaptado al turismo. Fuimos construidos desde cero para la realidad de los pequeños operadores hispanohablantes.</p>
+  </div>
+  <div class="profiles-grid">
+    <div class="profile-card">
+      <div class="profile-icon">🏨</div>
+      <h4>Dueño de hostal o alojamiento boutique</h4>
+      <p>Gestionás las reservas, la atención y el marketing vos mismo. Querés que el negocio funcione de noche y en fines de semana sin estar pegado al teléfono.</p>
+    </div>
+    <div class="profile-card">
+      <div class="profile-icon">🏄</div>
+      <h4>Operador de turismo de aventura</h4>
+      <p>Tus servicios son estacionales, el WhatsApp explota en temporada. Necesitás que la consulta a la reserva confirmada sea fluida y profesional.</p>
+    </div>
+    <div class="profile-card">
+      <div class="profile-icon">✈️</div>
+      <h4>Agencia de viajes independiente</h4>
+      <p>Competís con plataformas grandes y necesitás diferenciarte con atención personalizada y velocidad de respuesta. Querés automatizar sin perder el trato humano.</p>
+    </div>
+    <div class="profile-card">
+      <div class="profile-icon">🏡</div>
+      <h4>Hotel boutique o complejo de cabañas</h4>
+      <p>Tenés múltiples habitaciones y servicios adicionales. Necesitás un sistema que centralice todo y que escale con vos en temporada alta.</p>
+    </div>
+  </div>
+  <div class="fit-grid">
+    <div class="fit-box yes">
+      <h4>✅ Esto es para vos si...</h4>
+      <ul>
+        <li>Recibís consultas por WhatsApp que no podés responder a tiempo</li>
+        <li>Perdés reservas porque respondés lento o fuera de horario</li>
+        <li>Querés hacer marketing pero no tenés tiempo para hacerlo manual</li>
+        <li>Tus reservas están dispersas en distintos canales</li>
+        <li>Buscás una solución en español, pensada para Argentina y LATAM</li>
+        <li>Querés empezar rápido, sin meses de implementación</li>
+      </ul>
+    </div>
+    <div class="fit-box no">
+      <h4>✕ Esto NO es para vos si...</h4>
+      <ul>
+        <li>Buscás un software con cientos de funciones que nunca vas a usar</li>
+        <li>Esperás resultados sin configurar nada ni compartir info básica de tu negocio</li>
+        <li>Tu operación ya tiene un equipo de sistemas dedicado y procesos complejos</li>
+        <li>Preferís soluciones en inglés con soporte en otros husos horarios</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="cta-final">
+  <div class="section-tag" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.7)">Empezá hoy</div>
+  <h2>Tu próxima reserva puede llegar esta noche. Sin que vos hagas nada.</h2>
+  <p class="sub">Más de [X] negocios turísticos ya automatizaron su atención, sus reservas y su marketing con Botificación. Configuración asistida, soporte en español, y 14 días para probarlo sin riesgo ni tarjeta de crédito.</p>
+  <div class="hero-ctas" style="margin-top:2rem">
+    <a href="#" class="btn-primary">Quiero empezar gratis</a>
+    <a href="#" class="btn-ghost">Hablar con el equipo antes</a>
+  </div>
+  <p class="cta-micro">Sin tarjeta de crédito · Sin contrato · Sin equipo técnico necesario</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo">Botifi<span>cación</span></span>
+      <p>Tu negocio turístico atiende, reserva y vende mientras dormís. Hecho en Argentina para el turismo hispanohablante.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Producto</h5>
+      <ul>
+        <li><a href="#">Funcionalidades</a></li>
+        <li><a href="#">Precios</a></li>
+        <li><a href="#">Cómo funciona</a></li>
+        <li><a href="#">Integraciones</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="#">Sobre Botificación</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Casos de éxito</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <ul>
+        <li><a href="#">Política de Privacidad</a></li>
+        <li><a href="#">Términos y Condiciones</a></li>
+        <li><a href="#">Política de Cookies</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Botificación. Todos los derechos reservados.</span>
+    <span>hola@botificacion.com.ar · Buenos Aires, Argentina</span>
+  </div>
+</footer>
+
+</body>
+</html>
